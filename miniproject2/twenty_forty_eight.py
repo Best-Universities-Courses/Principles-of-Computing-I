@@ -1,8 +1,9 @@
 """
 Clone of 2048 game.
 """
+# from miniproject1.merge import sum_tiles
+# import poc_2048_gui
 
-import poc_2048_gui
 
 # Directions, DO NOT MODIFY
 UP = 1
@@ -76,16 +77,17 @@ class TwentyFortyEight:
     """
 
     def __init__(self, grid_height, grid_width):
-        # replace with your code
-        pass
+        if grid_height < 1 or grid_width < 1:
+            raise ValueError
+        self.grid_height = grid_height
+        self.grid_width = grid_width
 
     def reset(self):
         """
         Reset the game so the grid is empty except for two
         initial tiles.
         """
-        # replace with your code
-        pass
+        return [[0] * self.grid_width] * self.grid_height
 
     def __str__(self):
         """
@@ -140,4 +142,4 @@ class TwentyFortyEight:
         return 0
 
 
-poc_2048_gui.run_gui(TwentyFortyEight(4, 4))
+# poc_2048_gui.run_gui(TwentyFortyEight(4, 4))
