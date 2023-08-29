@@ -20,6 +20,9 @@ OFFSETS = {UP: (1, 0),
            LEFT: (0, 1),
            RIGHT: (0, -1)}
 
+ROW_IND = 0
+COL_IND = 1
+
 
 def sum_tiles(orig_list):
     """
@@ -79,18 +82,27 @@ class TwentyFortyEight:
     """
 
     def __init__(self, grid_height, grid_width):
+        self._board = []
         if grid_height < 1 or grid_width < 1:
             raise ValueError
-        self.grid_height = grid_height
-        self.grid_width = grid_width
-        self.board = self.reset()
+        self._grid_height = grid_height
+        self._grid_width = grid_width
+        self.reset()
+        self._initial_tiles = {
+            UP: [(0, j) for j in range(self._grid_width)],
+            DOWN: [(self._grid_height - 1, j) for j in range(self._grid_width)],
+            LEFT: [(i, 0) for i in range(self._grid_height)],
+            RIGHT: [(i, self._grid_width - 1) for i in range(self._grid_height)],
+        }
 
     def reset(self):
         """
         Reset the game so the grid is empty except for two
         initial tiles.
         """
-        return [[0] * self.grid_width] * self.grid_height
+        self._board = [[0 for dummy_col in range(self._grid_width)] for dummy_row in range(self._grid_height)]
+        self.new_tile()
+        self.new_tile()
 
     def __str__(self):
         """
@@ -98,8 +110,8 @@ class TwentyFortyEight:
         """
         # replace with your code
         out = ''
-        for row in range(self.grid_height):
-            for col in range(self.grid_width):
+        for row in range(self._grid_height):
+            for col in range(self._grid_width):
                 out += str(self.get_tile(row, col)) + ' '
             out += '\n'
         return out
@@ -109,22 +121,54 @@ class TwentyFortyEight:
         Get the height of the board.
         """
         # replace with your code
-        return self.grid_height
+        return self._grid_height
 
     def get_grid_width(self):
         """
         Get the width of the board.
         """
         # replace with your code
-        return self.grid_width
+        return self._grid_width
 
     def move(self, direction):
         """
         Move all tiles in the given direction and add
         a new tile if any tiles moved.
         """
-        # replace with your code
-        pass
+        line = []
+        new_line = []
+        has_board_changed = False
+        for board_tuple in self._initial_tiles[direction]:
+            line = []
+            aux_tuple = board_tuple
+            retries = 20
+            while (aux_tuple[ROW_IND] in range(self._grid_height)
+                    and aux_tuple[COL_IND] in range(self._grid_width) and retries > 0):
+                tile = self.get_tile(aux_tuple[ROW_IND], aux_tuple[COL_IND])
+                line.append(tile)
+                new_row = aux_tuple[ROW_IND] + OFFSETS[direction][ROW_IND]
+                new_col = aux_tuple[COL_IND] + OFFSETS[direction][COL_IND]
+                aux_tuple = (new_row, new_col)
+                retries -= 1
+
+            new_line = merge(line)
+
+            if line != new_line:
+                has_board_changed = True
+
+            aux_tuple = board_tuple
+            retries = 20
+            while (aux_tuple[ROW_IND] in range(self._grid_height)
+                    and aux_tuple[COL_IND] in range(self._grid_width) and retries > 0):
+                tile = new_line.pop(0)
+                self.set_tile(aux_tuple[ROW_IND], aux_tuple[COL_IND], tile)
+                new_row = aux_tuple[ROW_IND] + OFFSETS[direction][ROW_IND]
+                new_col = aux_tuple[COL_IND] + OFFSETS[direction][COL_IND]
+                aux_tuple = (new_row, new_col)
+                retries -= 1
+
+        if has_board_changed:
+            self.new_tile()
 
     def new_tile(self):
         """
@@ -133,27 +177,49 @@ class TwentyFortyEight:
         4 10% of the time.
         """
         pseudo_random_number = random.random()
-        random_row, random_column = self.get_random_board_indexes()
+        random_row = random_column = None
+        try:
+            random_row, random_column = self.get_random_board_indexes()
+        except ValueError:
+            return
+
         if pseudo_random_number < 0.9:
             self.set_tile(random_row, random_column, 2)
         else:
             self.set_tile(random_row, random_column, 4)
 
     def get_random_board_indexes(self):
-        return (random.randint(0, self.grid_height - 1),
-                random.randint(0, self.grid_width - 1))
+        """
+        Gets the row and column indexes of the board matrix which
+        contain a cell address with a value equal to 0
+        :return:
+        """
+        random_row = random.randint(0, self._grid_height - 1)
+        random_col = random.randint(0, self._grid_width - 1)
+
+        retries = 20
+        while self._board[random_row][random_col] != 0 and retries > 0:
+            random_row = random.randint(0, self._grid_height - 1)
+            random_col = random.randint(0, self._grid_width - 1)
+            retries -= 1
+
+        if retries == 0:
+            raise ValueError
+        return random_row, random_col
 
     def set_tile(self, row, col, value):
         """
         Set the tile at position row, col to have the given value.
         """
-        self.board[row][col] = value
+        self._board[row][col] = value
 
     def get_tile(self, row, col):
         """
         Return the value of the tile at position row, col.
         """
-        return self.board[row][col]
+        if row not in range(self._grid_height) or col not in range(self._grid_width):
+            raise IndexError
+        return self._board[row][col]
 
 
 # poc_2048_gui.run_gui(TwentyFortyEight(4, 4))
