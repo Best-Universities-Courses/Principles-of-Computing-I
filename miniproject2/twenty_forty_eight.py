@@ -1,6 +1,8 @@
 """
 Clone of 2048 game.
 """
+import random
+
 # from miniproject1.merge import sum_tiles
 # import poc_2048_gui
 
@@ -81,6 +83,7 @@ class TwentyFortyEight:
             raise ValueError
         self.grid_height = grid_height
         self.grid_width = grid_width
+        self.board = self.reset()
 
     def reset(self):
         """
@@ -94,21 +97,26 @@ class TwentyFortyEight:
         Return a string representation of the grid for debugging.
         """
         # replace with your code
-        return ""
+        out = ''
+        for row in range(self.grid_height):
+            for col in range(self.grid_width):
+                out += str(self.get_tile(row, col)) + ' '
+            out += '\n'
+        return out
 
     def get_grid_height(self):
         """
         Get the height of the board.
         """
         # replace with your code
-        return 0
+        return self.grid_height
 
     def get_grid_width(self):
         """
         Get the width of the board.
         """
         # replace with your code
-        return 0
+        return self.grid_width
 
     def move(self, direction):
         """
@@ -124,22 +132,28 @@ class TwentyFortyEight:
         square.  The tile should be 2 90% of the time and
         4 10% of the time.
         """
-        # replace with your code
-        pass
+        pseudo_random_number = random.random()
+        random_row, random_column = self.get_random_board_indexes()
+        if pseudo_random_number < 0.9:
+            self.set_tile(random_row, random_column, 2)
+        else:
+            self.set_tile(random_row, random_column, 4)
+
+    def get_random_board_indexes(self):
+        return (random.randint(0, self.grid_height - 1),
+                random.randint(0, self.grid_width - 1))
 
     def set_tile(self, row, col, value):
         """
         Set the tile at position row, col to have the given value.
         """
-        # replace with your code
-        pass
+        self.board[row][col] = value
 
     def get_tile(self, row, col):
         """
         Return the value of the tile at position row, col.
         """
-        # replace with your code
-        return 0
+        return self.board[row][col]
 
 
 # poc_2048_gui.run_gui(TwentyFortyEight(4, 4))
