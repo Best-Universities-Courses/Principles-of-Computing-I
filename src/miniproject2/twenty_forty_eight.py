@@ -3,7 +3,7 @@ Clone of 2048 game.
 """
 import random
 
-# from miniproject1.merge import sum_tiles
+
 # import poc_2048_gui
 
 
@@ -100,7 +100,7 @@ class TwentyFortyEight:
         Reset the game so the grid is empty except for two
         initial tiles.
         """
-        self._board = [[0 for dummy_col in range(self._grid_width)] for dummy_row in range(self._grid_height)]
+        self._board = [[0 for _ in range(self._grid_width)] for _ in range(self._grid_height)]
         self.new_tile()
         self.new_tile()
 
