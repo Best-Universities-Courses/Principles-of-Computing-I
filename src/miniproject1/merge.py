@@ -50,7 +50,6 @@ def merge(line):
             ind_out_list += 1
 
     while ind_out_list < length_line:
-        # out_list[ind_out_list] = 0
         out_list.append(0)
         ind_out_list += 1
 
